@@ -92,13 +92,13 @@ begin
         if (!(Test-Path "$($Script:ScriptServerPath)\$($Script:ScriptName)_config.xml") -or $Setup -eq $true)
         {
             [xml]$Settings = "<Config ScriptName=`"$Script:ScriptName.ps1`" Version=`"1.0`"><Settings><CustomerToolsDir></CustomerToolsDir><BitLockerExportDir></BitLockerExportDir></Settings></Config>"
-            Write-Host "`nWhoops.... " -ForegroundColor Red -NoNewline;
+            Write-Host "`nWhoops.... " -ForegroundColor Red -BackgroundColor Black -NoNewline;
             Write-Host "Could not find configuration file or -Setup parameter supplied, you will be prompted for the configuration to create the file";
             Write-Host "`n`nConfig File Setup" -ForegroundColor Green;
             $Settings.Config.Settings.CustomerToolsDir = [string](Read-Host -Prompt "Enter a directory which contains files to copy to your USB drive [blank to skip this step]");
             $Settings.Config.Settings.BitLockerExportDir = [string](Read-Host -Prompt "Enter a directory to save the BitLocker2Go recovery key file to [required]");
             $Settings.Save("$($Script:ScriptServerPath)\$($Script:ScriptName)_config.xml");
-            Write-Host "`nConfig saved." -ForegroundColor Green;
+            Write-Host "`nConfig saved.`n`n" -ForegroundColor Green;
             #flick the switch that we have performed setup to avoid looping
             #$Setup = $false;
 
@@ -111,11 +111,11 @@ begin
             [xml]$Settings = Get-Content "$($Script:ScriptServerPath)\$($Script:ScriptName)_config.xml";
             if ($Settings.Config.Settings.BitLockerExportDir.Trim().Length -le 0)
             {
-                Write-Host "`nWhoops.... There is an error with the configuration script." -ForegroundColor Red;
+                Write-Host "`nWhoops.... There is an error with the configuration script." -ForegroundColor Red -BackgroundColor Black;
                 Write-Host "`nPlease either...";
                 Write-Host "1) edit the configuration file $($Script:ScriptServerPath)\$($Script:ScriptName)_config.xml";
                 Write-Host "2) run .\$($Script:ScriptName).ps1 -Setup";
-                Write-Host "Then retry the script";
+                Write-Host "Then retry the script`n`n";
                 Break;
             }
         }
@@ -155,13 +155,13 @@ begin
     else
     {
         Write-Debug "IsBitLockeredLocation returned false";
-        Write-Host "`nWhoops.... There is an error with the configuration script." -ForegroundColor Red;
+        Write-Host "`nWhoops.... There is an error with the configuration script." -ForegroundColor Red -BackgroundColor Black;
         Write-Host "`nThe path specified as the BitLocker Key export path is either not valid or is not protected by BitLocker.";
         Write-Host "Storing the key on a non secured volume voids any protection gained through BitLocker.";
         Write-Host "`nPlease either...";
         Write-Host "1) edit the configuration file $($Script:ScriptServerPath)\$($Script:ScriptName)_config.xml";
         Write-Host "2) run .\$($Script:ScriptName).ps1 -Setup";
-        Write-Host "Then retry the script";
+        Write-Host "Then retry the script`n`n";
         Break;
     }    
     
@@ -192,6 +192,16 @@ process
     {
         Write-Verbose "Getting the volume object for any removable drive";
         $Script:Volume = Get-Volume | Where-Object -Property DriveType -EQ -Value Removable;
+
+        #Check if we found multiple removable drives
+        if ($Script:Volume.Count -gt 1)
+        {
+            Write-Debug "Multiple removeable drives found";
+            Write-Host "`nMultiple removeable drives found" -ForegroundColor Red -BackgroundColor Black;
+            Write-Host "`nAs a safety precaution when multiple USB Drives are found you must explicitly pass the drive letter to this script.";
+            Write-Host "e.g. .\$($Script:ScriptName).ps1 -DriveLetter A`n`n";
+            Break;
+        }
     }
     else
     {
