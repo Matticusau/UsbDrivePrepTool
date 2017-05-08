@@ -1,4 +1,4 @@
-# UsbDrivePrepTool
+# USB Drive Preparation Tool (Wipe, Encrypt, Prepare)
 
 **Project Description**
 This is a public release of a project I have worked on to assist with the task of preparing a USB drive. If your role is customer facing it is a useful tool to Format, Encrypt, and Prepare a USB drive before each visit. 
