@@ -1,3 +1,4 @@
+![Logo](./docs/USBDriveWipeEncryptAndPrep.png)
 # USB Drive Preparation Tool (Wipe, Encrypt, Prepare)
 
 **Project Description**
